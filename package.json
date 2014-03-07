@@ -1,0 +1,30 @@
+{
+  "name": "stream-format",
+  "version": "0.0.0",
+  "description": "String formatting with streams",
+  "main": "index.js",
+  "scripts": {
+    "test": "prova"
+  },
+  "dependencies": {
+    "concat-stream": "1.x",
+    "new-format": "0.x",
+    "resumer": "0.0.0",
+    "iter": "0.0.8"
+  },
+  "devDependencies": {
+    "prova": "*"
+  },
+  "keywords": [
+    "string",
+    "formatting",
+    "format",
+    "stream"
+  ],
+  "repository": {
+    "url": "git@github.com:azer/stream-format.git",
+    "type": "git"
+  },
+  "author": "Azer Koçulu <azer@kodfabrik.com>",
+  "license": "BSD"
+}
