@@ -1,27 +1,26 @@
-var resumer = require("resumer");
+var through = require("through");
 var concat = require("concat-stream");
 var render = require("new-format");
 var iterate = require('iter').parallel;
 
 module.exports = format;
 
-function format (template, vars) {
-  var stream = resumer();
+function format (vars) {
+  var stream = through(write).pause();
   var content;
   var keys;
 
-  if (arguments.length == 2 && typeof vars == 'object') {
+    if (arguments.length == 1 && typeof vars == 'object') {
     keys = Object.keys(vars);
     content = {};
   } else {
-    vars = Array.prototype.slice.call(arguments, 1);
+    vars = Array.prototype.slice.call(arguments);
     content = [];
   }
 
   iterate((keys || vars).length)
     .done(function () {
-      stream.queue(render(template, content));
-      stream.end();
+      stream.resume();
     })
     .error(function (error) {
       stream.emit('error', error);
@@ -52,4 +51,9 @@ function format (template, vars) {
       ok();
     }));
   }
+
+  function write (template) {
+    this.queue(render(template, content));
+  }
+
 }

@@ -9,8 +9,8 @@
   "dependencies": {
     "concat-stream": "1.x",
     "new-format": "0.x",
-    "resumer": "0.0.0",
-    "iter": "0.0.8"
+    "iter": "0.0.8",
+    "through": "~2.3.4"
   },
   "devDependencies": {
     "prova": "*"
