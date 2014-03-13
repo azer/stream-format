@@ -2,6 +2,7 @@ var format = require("./");
 var concat = require("concat-stream");
 var fs = require("fs");
 var through = require("through");
+var from = require("from");
 
 it('renders given string with given variables and readable streams', function(done){
   var f = format({
@@ -10,7 +11,7 @@ it('renders given string with given variables and readable streams', function(do
     gitignore: read('./.gitignore')
   });
 
-  through().pause().queue('hi {name}!\n\nthis is my npmignore file: {npmignore}\n\nand this is gitignore: {gitignore}').end().pipe(f);
+  text('hi {name}!\n\nthis is my npmignore file: {npmignore}\n\nand this is gitignore: {gitignore}').pipe(f);
 
   f.pipe(concat(function (data) {
     expect(data).to.equal(expected);
@@ -26,7 +27,7 @@ it('passes values as parameters', function(done){
     done();
   }));
 
-  through().pause().queue('hi {0}!\n\nthis is my npmignore file: {1}\n\nand this is gitignore: {2}').end().pipe(f);
+  text('hi {0}!\n\nthis is my npmignore file: {1}\n\nand this is gitignore: {2}').pipe(f);
 });
 
 it('renders template piece by piece', function(done){
@@ -47,6 +48,39 @@ it('renders template piece by piece', function(done){
   });
 
   f.pipe(concat(function (data) {
+    expect(data).to.equal(expected);
+    done();
+  }));
+});
+
+it('can nest other format streams', function(done) {
+  var qux = format({
+    span: text('this is span')
+  });
+
+  var foo = format({
+    qux: qux
+  });
+
+  var bar = format({
+    corge: text('this is corge')
+  });
+
+  var all = format({
+    foo: foo,
+    bar: bar
+  });
+
+  text('this is qux. span: {span}').pipe(qux);
+  text('this is bar. corge: {corge}').pipe(bar);
+  text('this is foo. qux: {qux}').pipe(foo);
+  text('this is all\n\nfoo: {foo}\nbar: {bar}').pipe(all);
+
+  var expected = ['this is all\n',
+                  'foo: this is foo. qux: this is qux. span: this is span',
+                  'bar: this is bar. corge: this is corge'].join('\n');
+
+  all.pipe(concat(function (data) {
     expect(data).to.equal(expected);
     done();
   }));
@@ -74,4 +108,9 @@ function read (path) {
 
 function cat (path) {
   return fs.readFileSync(path).toString();
+}
+
+function text () {
+  var data = Array.prototype.slice.call(arguments);
+  return from(data);
 }

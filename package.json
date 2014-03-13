@@ -9,11 +9,13 @@
   "dependencies": {
     "concat-stream": "1.x",
     "new-format": "0.x",
-    "iter": "0.0.8",
-    "through": "~2.3.4"
+    "through": "~2.3.4",
+    "parallel-loop": "0.0.0",
+    "pause-function": "0.0.1"
   },
   "devDependencies": {
-    "prova": "*"
+    "prova": "*",
+    "from": "*"
   },
   "keywords": [
     "string",

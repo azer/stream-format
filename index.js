@@ -1,16 +1,22 @@
 var through = require("through");
 var concat = require("concat-stream");
+var pause = require("pause-function");
 var render = require("new-format");
-var iterate = require('iter').parallel;
+var loop = require("parallel-loop");
 
 module.exports = format;
 
 function format (vars) {
-  var stream = through(write).pause();
+  var transform = pause(write);
+  var end = pause(done);
+  var stream = through(transform, end);
+
   var content;
   var keys;
+  var ready;
+  var queued;
 
-    if (arguments.length == 1 && typeof vars == 'object') {
+  if (arguments.length == 1 && typeof vars == 'object') {
     keys = Object.keys(vars);
     content = {};
   } else {
@@ -18,18 +24,22 @@ function format (vars) {
     content = [];
   }
 
-  iterate((keys || vars).length)
-    .done(function () {
-      stream.resume();
-    })
-    .error(function (error) {
-      stream.emit('error', error);
-    })
-    .run(each);
+  loop((keys || vars).length, each, function () {
+    transform.resume();
+    end.resume();
+  });
 
   return stream;
 
-  function each (ok, index) {
+  function done () {
+    this.queue(null);
+  }
+
+  function write (chunk) {
+    this.queue(render(chunk.toString(), content));
+  }
+
+  function each (end, index) {
     var key;
     var value;
 
@@ -43,17 +53,17 @@ function format (vars) {
 
     if (!value || !value.pipe) {
       content[key] = value;
-      return ok();
+      return end();
     }
 
-    value.on('error', ok).pipe(concat(function (data) {
-      content[key] = data.toString();
-      ok();
-    }));
-  }
+    value.on('error', function (err) {
+      stream.emit('error', err);
+    });
 
-  function write (template) {
-    this.queue(render(template, content));
+    value.pipe(concat(function (data) {
+      content[key] = data.toString();
+      end();
+    }));
   }
 
 }
