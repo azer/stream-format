@@ -10,43 +10,17 @@ $ npm install stream-format
 
 ## Usage
 
-Unlike new-format, it takes strings as streams. For example:
-
 ```js
-format = require('stream-format')
-fs = require('fs')
+var format = require('stream-format')
+var fs = require('fs')
 
-fs.readFileSync('./foo.txt')
-// => 'Hello, {0} {1}'
+var index = fs.createReadStream('./index.html') // => hello world. foo: {foo}, bar: {bar}, qux: {qux}
+var foo = fs.createReadStream('./foo.html') // => foo
+var bar = fs.createReadStream('./bar.html') // => bar
+var render = format({ foo: foo, bar: bar, qux: 'qux' });
 
-render = format('span', 'eggs').pipe(process.stdout)
-
-fs.createReadSteam('./foo').pipe(render)
-// => 'Hello span eggs'
+index.pipe(render).pipe(process.stdout)
+// => hello world. foo: "foo", bar: "bar", qux: "qux"
 ```
 
-You can pass an object of variables instead, and use names in your template:
 
-```js
-fs.readFileSync('./bar.txt')
-// => 'Hello {name} {surname}'
-
-render = format({ name: 'Azer', surname: 'Koculu' }).pipe(process.stdout)
-
-fs.createReadStream('./bar.txt').pipe(render)
-// => 'Hello Azer Koculu'
-```
-
-Variables can be streams, too:
-
-```js
-fs.readFileSync('./qux.txt')
-// => "Hello {name}, choose your favorite fruit: {fruits}"
-
-render = format({ fruits: fs.createReadStream('fruits.txt'), name: 'azer' }).pipe(process.stdout)
-
-fs.createReadStream('./qux.txt').pipe(render)
-// => Hello azer, choose your favorite fruit: apple, orange, cherry, plums
-```
-
-See `test.js` for more info.
