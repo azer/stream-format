@@ -8,9 +8,9 @@
   },
   "dependencies": {
     "concat-stream": "1.x",
-    "new-format": "0.x",
+    "format-text": "azer/format-text",
     "through": "~2.3.4",
-    "parallel-loop": "0.0.0",
+    "parallel-loop": "azer/parallel-loop",
     "pause-function": "0.0.1"
   },
   "devDependencies": {
