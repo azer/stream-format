@@ -1,7 +1,7 @@
 var through = require("through");
 var concat = require("concat-stream");
 var pause = require("pause-function");
-var render = require("new-format");
+var render = require("format-text");
 var loop = require("parallel-loop");
 
 module.exports = format;
